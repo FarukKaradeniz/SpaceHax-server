@@ -11,7 +11,8 @@ type SignUpDTO struct {
 }
 
 type AuthResponse struct {
-	Message string `json:"message"`
+	Message      string `json:"message"`
+	IsAdmin      *bool  `json:"is_admin,omitempty"`
+	IsSuperAdmin *bool  `json:"is_super_admin,omitempty"`
+	PlayerId     uint   `json:"player_id,omitempty"`
 }
-
-// TODO admin/süper admin durumunu döndürebilirsin

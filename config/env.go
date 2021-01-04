@@ -7,7 +7,10 @@ import (
 
 var (
 	PORT    = getEnv("PORT", "8080")
-	DB_HOST = getEnv("DB_HOST", "postgres")
+	DB_HOST = getEnv("DB_HOST", "localhost")
+	DB_USER = getEnv("DB_USER", "postgres")
+	DB_PASS = getEnv("DB_PASS", "admin")
+	DB_NAME = getEnv("DB_NAME", "spacehax")
 )
 
 func getEnv(name string, fallback string) string {
