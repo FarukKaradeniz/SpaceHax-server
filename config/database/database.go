@@ -5,6 +5,7 @@ import (
 	"github.com/FarukKaradeniz/SpaceHax-server/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -12,7 +13,9 @@ var DB *gorm.DB
 func Connect() {
 	dbUri := fmt.Sprintf("host=%s user=%s password=%s dbname=%s",
 		config.DB_HOST, config.DB_USER, config.DB_PASS, config.DB_NAME)
-	db, err := gorm.Open(postgres.Open(dbUri), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dbUri), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		fmt.Println("database connection error")
 		panic(err)
