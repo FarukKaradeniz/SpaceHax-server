@@ -15,4 +15,5 @@ func HaxGameRoutes(app fiber.Router) {
 	r.Get("/top5byAssists", services.GetTop5PlayersByAssists)
 	r.Get("/banList", services.GetBanList)
 	r.Post("/banPlayer", services.BanPlayer)
+	r.Post("/clearBan", services.ClearBan)
 }
