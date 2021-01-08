@@ -10,4 +10,6 @@ func HaxAuthRoutes(app fiber.Router) {
 
 	r.Post("/signup", services.SignUp)
 	r.Post("/login", services.Login)
+	r.Post("/changePassword", services.ChangePassword)
+	// TODO şifre unutmalar için passwordRequest gibi bişey oluştur
 }

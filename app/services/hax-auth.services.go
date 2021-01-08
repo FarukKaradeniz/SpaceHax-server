@@ -52,3 +52,21 @@ func SignUp(ctx *fiber.Ctx) error {
 		Message: "success",
 	})
 }
+
+func ChangePassword(ctx *fiber.Ctx) error {
+	var dto struct {
+		PlayerId uint   `json:"playerId"`
+		Password string `json:"password"`
+	}
+	if err := ctx.BodyParser(&dto); err != nil {
+		return err
+	}
+
+	if err := dao.ChangePassword(dto.PlayerId, dto.Password).Error; err != nil {
+		return fiber.NewError(fiber.StatusConflict, "error changing password")
+	}
+
+	return ctx.JSON(models.AuthResponse{
+		Message: "success",
+	})
+}

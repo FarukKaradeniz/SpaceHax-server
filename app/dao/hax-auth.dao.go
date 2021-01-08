@@ -26,6 +26,10 @@ func GetPlayerByNameAndPassword(player *Player, name, password string) *gorm.DB 
 	return database.DB.Where("player_name = ? and password = ?", name, password).First(player)
 }
 
+func ChangePassword(playerId uint, newPassword string) *gorm.DB {
+	return database.DB.Model(&Player{}).Where("id = ?", playerId).Update("password", newPassword)
+}
+
 func (player *Player) AfterSave(tx *gorm.DB) (err error) {
 	stats := PlayerStats{PlayerId: player.ID}
 	if err := createPlayerStats(&stats); err.Error != nil {
