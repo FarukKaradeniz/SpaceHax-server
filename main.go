@@ -18,6 +18,7 @@ func main() {
 
 	routes.HaxAuthRoutes(app)
 	routes.HaxGameRoutes(app)
+	routes.AdminRoutes(app)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%v", config.PORT)))
 }

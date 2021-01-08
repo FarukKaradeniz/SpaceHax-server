@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"github.com/FarukKaradeniz/SpaceHax-server/app/models"
 	"github.com/FarukKaradeniz/SpaceHax-server/config/database"
 	"gorm.io/gorm"
 )
@@ -31,7 +32,7 @@ func ChangePassword(playerId uint, newPassword string) *gorm.DB {
 }
 
 func (player *Player) AfterSave(tx *gorm.DB) (err error) {
-	stats := PlayerStats{PlayerId: player.ID}
+	stats := models.PlayerStats{PlayerId: player.ID}
 	if err := createPlayerStats(&stats); err.Error != nil {
 		return err.Error
 	}
