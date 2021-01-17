@@ -10,7 +10,7 @@ func AdminRoutes(app fiber.Router) {
 
 	r.Post("/addConfig", services.AddRoomConfig)
 	r.Post("/updateConfig", services.UpdateConfig)
-	r.Post("/removeConfig", services.RemoveConfig)
-	r.Post("/getRoomConfig", services.GetRoomConfig)
+	r.Post("/removeConfig", services.RemoveConfig) // TODO will be tested
+	r.Get("/getRoomConfig/:alias", services.GetRoomConfig)
 	r.Get("/getRoomConfigs", services.GetAllRoomConfigs)
 }

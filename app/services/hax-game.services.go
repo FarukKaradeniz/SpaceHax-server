@@ -14,7 +14,7 @@ func SaveGame(ctx *fiber.Ctx) error {
 	}
 
 	for _, playerId := range dto.Played {
-		err := dao.UpdatePlayerStats(playerId, dto.Stats[playerId].GoalsCount, dto.Stats[playerId].AssistsCount, dto.Stats[playerId].Won).Error
+		err := dao.UpdatePlayerStats(playerId, dto.Stats[playerId].GoalsCount, dto.Stats[playerId].AssistsCount, dto.Stats[playerId].Won, dto.RoomId).Error
 		if err != nil {
 			return fiber.NewError(fiber.StatusConflict, "error updating stats")
 		}
@@ -26,13 +26,14 @@ func SaveGame(ctx *fiber.Ctx) error {
 
 func ClearPlayerStats(ctx *fiber.Ctx) error {
 	var dto struct {
-		PlayerId uint `json:"playerId"`
+		PlayerId uint   `json:"playerId"`
+		RoomId   string `json:"room"`
 	}
 	if err := ctx.BodyParser(&dto); err != nil {
 		return err
 	}
 
-	err := dao.ClearPlayerStats(dto.PlayerId).Error
+	err := dao.ClearPlayerStats(dto.PlayerId, dto.RoomId).Error
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error clearing stats")
 	}
@@ -44,13 +45,14 @@ func ClearPlayerStats(ctx *fiber.Ctx) error {
 
 func GetStats(ctx *fiber.Ctx) error {
 	var dto struct {
-		PlayerId uint `json:"playerId"`
+		PlayerId uint   `json:"playerId"`
+		RoomId   string `json:"room"`
 	}
 	if err := ctx.BodyParser(&dto); err != nil {
 		return err
 	}
 
-	playerStats, err := dao.GetPlayerStatsByID(dto.PlayerId)
+	playerStats, err := dao.GetPlayerStatsByID(dto.PlayerId, dto.RoomId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error getting stats")
 	}
@@ -59,7 +61,7 @@ func GetStats(ctx *fiber.Ctx) error {
 }
 
 func GetTop5PlayersByGoals(ctx *fiber.Ctx) error {
-	players, err := dao.GetTop5PlayersByGoals()
+	players, err := dao.GetTop5PlayersByGoals(ctx.Params("room"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error getting stats")
 	}
@@ -68,7 +70,7 @@ func GetTop5PlayersByGoals(ctx *fiber.Ctx) error {
 }
 
 func GetTop5PlayersByAssists(ctx *fiber.Ctx) error {
-	players, err := dao.GetTop5PlayersByAssists()
+	players, err := dao.GetTop5PlayersByAssists(ctx.Params("room"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error getting stats")
 	}
@@ -81,12 +83,14 @@ func BanPlayer(ctx *fiber.Ctx) error {
 		PlayerId uint      `json:"playerId"`
 		Until    time.Time `json:"until"`
 		IsPerma  bool      `json:"is_perma"`
+		RoomId   string    `json:"room"`
+		BanType  string    `json:"ban_type"`
 	}
 	if err := ctx.BodyParser(&dto); err != nil {
 		return err
 	}
 
-	if err := dao.BanPlayer(dto.PlayerId, dto.IsPerma, dto.Until).Error; err != nil {
+	if err := dao.BanPlayer(dto.PlayerId, dto.IsPerma, dto.Until, dto.RoomId, dto.BanType).Error; err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error banning player")
 	}
 
@@ -96,7 +100,7 @@ func BanPlayer(ctx *fiber.Ctx) error {
 }
 
 func GetBanList(ctx *fiber.Ctx) error {
-	banList, err := dao.GetBanList()
+	banList, err := dao.GetBanList(ctx.Params("room"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error getting banned players list")
 	}
@@ -106,13 +110,14 @@ func GetBanList(ctx *fiber.Ctx) error {
 
 func ClearBan(ctx *fiber.Ctx) error {
 	var dto struct {
-		PlayerId uint `json:"playerId"`
+		PlayerId uint   `json:"playerId"`
+		RoomId   string `json:"room"`
 	}
 	if err := ctx.BodyParser(&dto); err != nil {
 		return err
 	}
 
-	if err := dao.ClearBan(dto.PlayerId).Error; err != nil {
+	if err := dao.ClearBan(dto.PlayerId, dto.RoomId).Error; err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error clearing ban")
 	}
 

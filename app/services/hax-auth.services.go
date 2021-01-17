@@ -15,7 +15,7 @@ func Login(ctx *fiber.Ctx) error {
 	}
 
 	player := &dao.Player{}
-	err := dao.GetPlayerByNameAndPassword(player, dto.Name, dto.Password).Error
+	err := dao.GetPlayerByNameAndPassword(player, dto.Name, dto.Password, dto.RoomId).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return fiber.NewError(fiber.StatusUnauthorized, "invalid name or password")
 	}
@@ -35,7 +35,7 @@ func SignUp(ctx *fiber.Ctx) error {
 	}
 
 	player := &dao.Player{}
-	err := dao.GetPlayerByNameAndPassword(player, dto.Name, dto.Password).Error
+	err := dao.GetPlayerByNameAndPassword(player, dto.Name, dto.Password, dto.RoomId).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return fiber.NewError(fiber.StatusConflict, "you already have an account")
 	}
@@ -43,6 +43,7 @@ func SignUp(ctx *fiber.Ctx) error {
 	player.Name = dto.Name
 	player.Password = dto.Password
 	player.Connection = dto.Connection
+	player.RoomId = dto.RoomId
 
 	if err := dao.CreatePlayer(player); err.Error != nil {
 		return fiber.NewError(fiber.StatusConflict, err.Error.Error())
@@ -57,12 +58,13 @@ func ChangePassword(ctx *fiber.Ctx) error {
 	var dto struct {
 		PlayerId uint   `json:"playerId"`
 		Password string `json:"password"`
+		RoomId   string `json:"room"`
 	}
 	if err := ctx.BodyParser(&dto); err != nil {
 		return err
 	}
 
-	if err := dao.ChangePassword(dto.PlayerId, dto.Password).Error; err != nil {
+	if err := dao.ChangePassword(dto.PlayerId, dto.Password, dto.RoomId).Error; err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error changing password")
 	}
 

@@ -1,7 +1,6 @@
 package models
 
 type RoomConfig struct {
-	ID         uint   `gorm:"primarykey" json:"id"`
 	Map        string `json:"map"`
 	RoomName   string `json:"roomName"`
 	ScoreLimit int8   `json:"scoreLimit"`

@@ -23,14 +23,7 @@ func AddRoomConfig(ctx *fiber.Ctx) error {
 }
 
 func GetRoomConfig(ctx *fiber.Ctx) error {
-	var dto struct {
-		Alias string `json:"alias"`
-	}
-	if err := ctx.BodyParser(&dto); err != nil {
-		return err
-	}
-
-	config, err := dao.GetRoomConfig(dto.Alias)
+	config, err := dao.GetRoomConfig(ctx.Params("alias"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error getting room config")
 	}
@@ -62,13 +55,13 @@ func UpdateConfig(ctx *fiber.Ctx) error {
 
 func RemoveConfig(ctx *fiber.Ctx) error {
 	var dto struct {
-		Id int `json:"id"`
+		Alias string `json:"alias"`
 	}
 	if err := ctx.BodyParser(&dto); err != nil {
 		return err
 	}
 
-	if err := dao.RemoveConfig(dto.Id); err != nil {
+	if err := dao.RemoveConfig(dto.Alias); err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error removing room config")
 	}
 

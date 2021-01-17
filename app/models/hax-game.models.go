@@ -5,6 +5,7 @@ import "time"
 type GameStatsDTO struct {
 	Played []uint         `json:"played"`
 	Stats  map[uint]Stats `json:"stats"`
+	RoomId string         `json:"room"`
 }
 
 type Stats struct {
@@ -29,6 +30,7 @@ type PlayerStats struct {
 	AssistsCount      uint
 	GamesPlayed       uint
 	GamesWon          uint
+	RoomId            string
 }
 
 // Sonradan OG count, fastest goal, pointswon eklenebilir
@@ -38,6 +40,8 @@ type BannedPlayer struct {
 	BannedUntil time.Time
 	PlayerId    uint
 	IsPerma     bool
+	RoomId      string
+	Type        string
 }
 
 func (PlayerStats) TableName() string {
