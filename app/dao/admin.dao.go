@@ -30,9 +30,9 @@ func GetAllRoomConfigs() ([]models.RoomConfig, error) {
 }
 
 func UpdateConfig(config *models.RoomConfig) *gorm.DB {
-	return database.DB.Updates(config)
+	return database.DB.Where("alias = ?", config.Alias).Updates(config)
 }
 
-func RemoveConfig(id int) *gorm.DB {
-	return database.DB.Where("id = ?", id).Delete(&models.RoomConfig{})
+func RemoveConfig(alias string) *gorm.DB {
+	return database.DB.Where("alias = ?", alias).Delete(&models.RoomConfig{})
 }

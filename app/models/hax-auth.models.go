@@ -3,6 +3,7 @@ package models
 type LoginDTO struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
+	RoomId   string `json:"room"`
 }
 
 type SignUpDTO struct {

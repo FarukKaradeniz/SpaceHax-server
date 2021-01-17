@@ -12,7 +12,7 @@ func createPlayerStats(stats *models.PlayerStats) *gorm.DB {
 	return database.DB.Create(stats)
 }
 
-func UpdatePlayerStats(playerId, newGoals, newAssists, won uint) *gorm.DB {
+func UpdatePlayerStats(playerId, newGoals, newAssists, won uint, roomId string) *gorm.DB {
 	updates := map[string]interface{}{
 		"total_goals_count":   gorm.Expr("total_goals_count + ?", newGoals),
 		"total_assists_count": gorm.Expr("total_assists_count + ?", newAssists),
@@ -23,21 +23,21 @@ func UpdatePlayerStats(playerId, newGoals, newAssists, won uint) *gorm.DB {
 		"games_played":        gorm.Expr("games_played + ?", 1),
 		"games_won":           gorm.Expr("games_won + ?", won),
 	}
-	return database.DB.Model(&models.PlayerStats{}).Where("player_id = ?", playerId).Updates(updates)
+	return database.DB.Model(&models.PlayerStats{}).Where("player_id = ? and room_id = ?", playerId, roomId).Updates(updates)
 }
 
-func ClearPlayerStats(playerId uint) *gorm.DB {
+func ClearPlayerStats(playerId uint, roomId string) *gorm.DB {
 	updates := map[string]interface{}{
 		"goals_count":   0,
 		"assists_count": 0,
 		"games_played":  0,
 		"games_won":     0,
 	}
-	return database.DB.Model(&models.PlayerStats{}).Where("player_id = ?", playerId).Updates(updates)
+	return database.DB.Model(&models.PlayerStats{}).Where("player_id = ? and room_id = ?", playerId, roomId).Updates(updates)
 }
 
-func GetPlayerStatsByID(playerId uint) (models.PlayerStats, error) {
-	stats := models.PlayerStats{ID: playerId}
+func GetPlayerStatsByID(playerId uint, roomId string) (models.PlayerStats, error) {
+	stats := models.PlayerStats{ID: playerId, RoomId: roomId}
 	tx := database.DB.First(&stats)
 	if tx.Error != nil {
 		return stats, tx.Error
@@ -48,33 +48,35 @@ func GetPlayerStatsByID(playerId uint) (models.PlayerStats, error) {
 	return stats, errors.New("error getting stats")
 }
 
-func GetTop5PlayersByGoals() ([]models.PlayerStats, error) {
+func GetTop5PlayersByGoals(roomId string) ([]models.PlayerStats, error) {
 	var stats []models.PlayerStats
-	tx := database.DB.Order("total_goals_count desc").Find(&stats).Limit(5)
+	tx := database.DB.Where("room_id = ?", roomId).Order("total_goals_count desc").Find(&stats).Limit(5)
 	return stats, tx.Error
 }
 
-func GetTop5PlayersByAssists() ([]models.PlayerStats, error) {
+func GetTop5PlayersByAssists(roomId string) ([]models.PlayerStats, error) {
 	var stats []models.PlayerStats
-	tx := database.DB.Order("total_assists_count desc").Find(&stats).Limit(5)
+	tx := database.DB.Where("room_id = ?", roomId).Order("total_assists_count desc").Find(&stats).Limit(5)
 	return stats, tx.Error
 }
 
-func GetBanList() ([]models.BannedPlayer, error) {
+func GetBanList(roomId string) ([]models.BannedPlayer, error) {
 	var list []models.BannedPlayer
-	tx := database.DB.Order("id asc").Find(&list)
+	tx := database.DB.Where("room_id = ?", roomId).Order("id asc").Find(&list)
 	return list, tx.Error
 }
 
-func BanPlayer(playerId uint, isPerma bool, until time.Time) *gorm.DB {
+func BanPlayer(playerId uint, isPerma bool, until time.Time, roomId string, banType string) *gorm.DB {
 	bannedPlayer := &models.BannedPlayer{
 		BannedUntil: until,
 		PlayerId:    playerId,
 		IsPerma:     isPerma,
+		RoomId:      roomId,
+		Type:        banType,
 	}
 	return database.DB.Create(bannedPlayer)
 }
 
-func ClearBan(playerId uint) *gorm.DB {
-	return database.DB.Where("player_id = ?", playerId).Delete(&models.BannedPlayer{})
+func ClearBan(playerId uint, roomId string) *gorm.DB {
+	return database.DB.Where("player_id = ? and room_id = ?", playerId, roomId).Delete(&models.BannedPlayer{})
 }
