@@ -7,7 +7,7 @@ import (
 )
 
 func AddRoomConfig(ctx *fiber.Ctx) error {
-	dto := new(models.RoomConfig)
+	dto := new(dao.RoomConfig)
 	if err := ctx.BodyParser(dto); err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func GetRoomConfig(ctx *fiber.Ctx) error {
 }
 
 func UpdateConfig(ctx *fiber.Ctx) error {
-	dto := new(models.RoomConfig)
+	dto := new(dao.RoomConfig)
 	if err := ctx.BodyParser(dto); err != nil {
 		return err
 	}

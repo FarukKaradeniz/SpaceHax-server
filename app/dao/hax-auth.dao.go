@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"github.com/FarukKaradeniz/SpaceHax-server/app/models"
 	"github.com/FarukKaradeniz/SpaceHax-server/config/database"
 	"gorm.io/gorm"
 )
@@ -32,10 +31,23 @@ func ChangePassword(playerId uint, newPassword string, roomId string) *gorm.DB {
 	return database.DB.Model(&Player{}).Where("id = ? and room_id = ?", playerId, roomId).Update("password", newPassword)
 }
 
+func RemovePlayers(roomId string) *gorm.DB {
+	return database.DB.Where("room_id = ?", roomId).Delete(&Player{})
+}
+
 func (player *Player) AfterSave(tx *gorm.DB) (err error) {
-	stats := models.PlayerStats{PlayerId: player.ID, RoomId: player.RoomId}
+	stats := PlayerStats{PlayerId: player.ID, RoomId: player.RoomId}
 	if err := createPlayerStats(&stats); err.Error != nil {
 		return err.Error
 	}
 	return nil
+}
+
+func (player *Player) BeforeDelete(tx *gorm.DB) (err error) {
+	err = ClearBan(player.ID, player.RoomId).Error
+	if err != nil {
+		return err
+	}
+
+	return RemoveStats(player.ID, player.RoomId).Error
 }
