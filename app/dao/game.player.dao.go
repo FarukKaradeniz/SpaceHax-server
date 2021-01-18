@@ -32,7 +32,7 @@ func ChangePassword(playerId uint, newPassword string, roomId string) *gorm.DB {
 }
 
 func RemovePlayers(roomId string) *gorm.DB {
-	return database.DB.Where("room_id = ?", roomId).Delete(&Player{})
+	return database.DB.Where("room_id = ?", roomId).Delete(&Player{RoomId: roomId})
 }
 
 func (player *Player) AfterSave(tx *gorm.DB) (err error) {
@@ -44,10 +44,10 @@ func (player *Player) AfterSave(tx *gorm.DB) (err error) {
 }
 
 func (player *Player) BeforeDelete(tx *gorm.DB) (err error) {
-	err = ClearBan(player.ID, player.RoomId).Error
+	err = ClearBans(player.RoomId).Error
 	if err != nil {
 		return err
 	}
 
-	return RemoveStats(player.ID, player.RoomId).Error
+	return RemoveStats(player.RoomId).Error
 }

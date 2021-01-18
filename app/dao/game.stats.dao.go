@@ -8,7 +8,6 @@ import (
 )
 
 // Sonradan OG count, fastest goal, pointswon eklenebilir
-
 type PlayerStats struct {
 	ID                uint `gorm:"primarykey"`
 	UpdatedAt         time.Time
@@ -26,19 +25,6 @@ type PlayerStats struct {
 
 func (PlayerStats) TableName() string {
 	return "player_stats"
-}
-
-type BannedPlayer struct {
-	ID          uint `gorm:"primarykey"`
-	BannedUntil time.Time
-	PlayerId    uint
-	IsPerma     bool
-	RoomId      string
-	Type        string
-}
-
-func (BannedPlayer) TableName() string {
-	return "banned_players"
 }
 
 func createPlayerStats(stats *PlayerStats) *gorm.DB {
@@ -91,27 +77,6 @@ func GetPlayers(limit int, sortBy, roomId string) ([]PlayerStats, error) {
 	return stats, tx.Error
 }
 
-func GetBanList(roomId string) ([]BannedPlayer, error) {
-	var list []BannedPlayer
-	tx := database.DB.Where("room_id = ?", roomId).Order("id asc").Find(&list)
-	return list, tx.Error
-}
-
-func BanPlayer(playerId uint, isPerma bool, until time.Time, roomId string, banType string) *gorm.DB {
-	bannedPlayer := &BannedPlayer{
-		BannedUntil: until,
-		PlayerId:    playerId,
-		IsPerma:     isPerma,
-		RoomId:      roomId,
-		Type:        banType,
-	}
-	return database.DB.Create(bannedPlayer)
-}
-
-func ClearBan(playerId uint, roomId string) *gorm.DB {
-	return database.DB.Where("player_id = ? and room_id = ?", playerId, roomId).Delete(&BannedPlayer{})
-}
-
-func RemoveStats(playerId uint, roomId string) *gorm.DB {
-	return database.DB.Where("player_id = ? and room_id = ?", playerId, roomId).Delete(&PlayerStats{})
+func RemoveStats(roomId string) *gorm.DB {
+	return database.DB.Where("room_id = ?", roomId).Delete(&PlayerStats{})
 }

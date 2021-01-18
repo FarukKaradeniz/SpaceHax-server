@@ -2,14 +2,25 @@ package services
 
 import (
 	"github.com/FarukKaradeniz/SpaceHax-server/app/dao"
-	"github.com/FarukKaradeniz/SpaceHax-server/app/models"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 	"time"
 )
 
+type GameStatsDTO struct {
+	Played []uint         `json:"played"`
+	Stats  map[uint]Stats `json:"stats"`
+	RoomId string         `json:"room"`
+}
+
+type Stats struct {
+	GoalsCount   uint `json:"goalsCount"`
+	AssistsCount uint `json:"assistsCount"`
+	Won          uint `json:"won"`
+}
+
 func SaveGame(ctx *fiber.Ctx) error {
-	dto := new(models.GameStatsDTO)
+	dto := new(GameStatsDTO)
 	if err := ctx.BodyParser(dto); err != nil {
 		return err
 	}
@@ -20,9 +31,7 @@ func SaveGame(ctx *fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusConflict, "error updating stats")
 		}
 	}
-	return ctx.JSON(models.GameResponse{
-		Message: "success",
-	})
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
 func ClearPlayerStats(ctx *fiber.Ctx) error {
@@ -36,9 +45,7 @@ func ClearPlayerStats(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusConflict, "error clearing stats")
 	}
 
-	return ctx.JSON(models.GameResponse{
-		Message: "success",
-	})
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
 func GetStats(ctx *fiber.Ctx) error {
@@ -76,9 +83,7 @@ func BanPlayer(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusConflict, "error banning player")
 	}
 
-	return ctx.JSON(models.GameResponse{
-		Message: "success",
-	})
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
 func GetBanList(ctx *fiber.Ctx) error {
@@ -100,7 +105,5 @@ func ClearBan(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusConflict, "error clearing ban")
 	}
 
-	return ctx.JSON(models.GameResponse{
-		Message: "success",
-	})
+	return ctx.SendStatus(fiber.StatusOK)
 }

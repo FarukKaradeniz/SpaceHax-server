@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/FarukKaradeniz/SpaceHax-server/app/dao"
-	"github.com/FarukKaradeniz/SpaceHax-server/app/models"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -17,9 +16,7 @@ func AddRoomConfig(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusConflict, "error creating room config")
 	}
 
-	return ctx.JSON(models.GameResponse{
-		Message: "success",
-	})
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
 func GetRoomConfig(ctx *fiber.Ctx) error {
@@ -59,11 +56,9 @@ func UpdateConfig(ctx *fiber.Ctx) error {
 
 func RemoveConfig(ctx *fiber.Ctx) error {
 	alias := ctx.Params("alias")
-	if err := dao.RemoveConfig(alias); err != nil {
+	if err := dao.RemoveConfig(alias).Error; err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error removing room config")
 	}
 
-	return ctx.JSON(models.GameResponse{
-		Message: "success",
-	})
+	return ctx.SendStatus(fiber.StatusOK)
 }

@@ -45,7 +45,7 @@ func UpdateConfig(config *RoomConfig) *gorm.DB {
 }
 
 func RemoveConfig(alias string) *gorm.DB {
-	return database.DB.Where("alias = ?", alias).Delete(&RoomConfig{})
+	return database.DB.Where("alias = ?", alias).Delete(&RoomConfig{Alias: alias})
 }
 
 func (config *RoomConfig) BeforeDelete(tx *gorm.DB) (err error) {
