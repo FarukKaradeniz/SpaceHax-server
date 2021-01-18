@@ -35,7 +35,7 @@ func RemovePlayers(roomId string) *gorm.DB {
 	return database.DB.Where("room_id = ?", roomId).Delete(&Player{RoomId: roomId})
 }
 
-func (player *Player) AfterSave(tx *gorm.DB) (err error) {
+func (player *Player) AfterSave(_ *gorm.DB) (err error) {
 	stats := PlayerStats{PlayerId: player.ID, RoomId: player.RoomId}
 	if err := createPlayerStats(&stats); err.Error != nil {
 		return err.Error
@@ -43,7 +43,7 @@ func (player *Player) AfterSave(tx *gorm.DB) (err error) {
 	return nil
 }
 
-func (player *Player) BeforeDelete(tx *gorm.DB) (err error) {
+func (player *Player) BeforeDelete(_ *gorm.DB) (err error) {
 	err = ClearBans(player.RoomId).Error
 	if err != nil {
 		return err
