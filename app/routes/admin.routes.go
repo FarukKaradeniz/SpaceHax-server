@@ -11,6 +11,6 @@ func AdminRoutes(app fiber.Router) {
 	config := r.Group("/configs")
 	config.Post("", services.AddRoomConfig)
 	config.Put("/:alias", services.UpdateConfig)
-	config.Delete("/:alias", services.RemoveConfig) // TODO will be tested
+	config.Delete("/:alias", services.RemoveConfig)
 	config.Get("/:alias?", services.GetRoomConfig)
 }
