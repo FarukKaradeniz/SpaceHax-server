@@ -37,26 +37,24 @@ func ClearPlayerStats(playerId uint, roomId string) *gorm.DB {
 }
 
 func GetPlayerStatsByID(playerId uint, roomId string) (models.PlayerStats, error) {
-	stats := models.PlayerStats{ID: playerId, RoomId: roomId}
-	tx := database.DB.First(&stats)
+	stats := models.PlayerStats{}
+	tx := database.DB.Where("player_id = ? and room_id = ?", playerId, roomId).First(&stats)
 	if tx.Error != nil {
 		return stats, tx.Error
 	}
-	if stats.ID == playerId {
+	if stats.PlayerId == playerId {
 		return stats, nil
 	}
 	return stats, errors.New("error getting stats")
 }
 
-func GetTop5PlayersByGoals(roomId string) ([]models.PlayerStats, error) {
+func GetPlayers(limit int, sortBy, roomId string) ([]models.PlayerStats, error) {
+	sort := map[string]string{
+		"goals":   "total_goals_count",
+		"assists": "total_assists_count",
+	}
 	var stats []models.PlayerStats
-	tx := database.DB.Where("room_id = ?", roomId).Order("total_goals_count desc").Find(&stats).Limit(5)
-	return stats, tx.Error
-}
-
-func GetTop5PlayersByAssists(roomId string) ([]models.PlayerStats, error) {
-	var stats []models.PlayerStats
-	tx := database.DB.Where("room_id = ?", roomId).Order("total_assists_count desc").Find(&stats).Limit(5)
+	tx := database.DB.Where("room_id = ?", roomId).Order(sort[sortBy] + " desc").Limit(limit).Find(&stats)
 	return stats, tx.Error
 }
 

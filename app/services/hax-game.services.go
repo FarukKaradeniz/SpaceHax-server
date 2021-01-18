@@ -4,6 +4,7 @@ import (
 	"github.com/FarukKaradeniz/SpaceHax-server/app/dao"
 	"github.com/FarukKaradeniz/SpaceHax-server/app/models"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 	"time"
 )
 
@@ -25,15 +26,12 @@ func SaveGame(ctx *fiber.Ctx) error {
 }
 
 func ClearPlayerStats(ctx *fiber.Ctx) error {
-	var dto struct {
-		PlayerId uint   `json:"playerId"`
-		RoomId   string `json:"room"`
-	}
-	if err := ctx.BodyParser(&dto); err != nil {
-		return err
+	playerId, err := strconv.Atoi(ctx.Params("playerId"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusConflict, "invalid payload")
 	}
 
-	err := dao.ClearPlayerStats(dto.PlayerId, dto.RoomId).Error
+	err = dao.ClearPlayerStats(uint(playerId), ctx.Query("room")).Error
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error clearing stats")
 	}
@@ -44,38 +42,22 @@ func ClearPlayerStats(ctx *fiber.Ctx) error {
 }
 
 func GetStats(ctx *fiber.Ctx) error {
-	var dto struct {
-		PlayerId uint   `json:"playerId"`
-		RoomId   string `json:"room"`
-	}
-	if err := ctx.BodyParser(&dto); err != nil {
-		return err
+	playerId, err := strconv.Atoi(ctx.Params("playerId"))
+	var playerStats interface{}
+	if playerId != 0 {
+		playerStats, err = dao.GetPlayerStatsByID(uint(playerId), ctx.Query("room"))
+	} else {
+		limit, _ := strconv.Atoi(ctx.Query("limit", "5"))
+		room := ctx.Query("room")
+		sortBy := ctx.Query("sortBy", "goals")
+		playerStats, err = dao.GetPlayers(limit, sortBy, room)
 	}
 
-	playerStats, err := dao.GetPlayerStatsByID(dto.PlayerId, dto.RoomId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error getting stats")
 	}
 
 	return ctx.JSON(playerStats)
-}
-
-func GetTop5PlayersByGoals(ctx *fiber.Ctx) error {
-	players, err := dao.GetTop5PlayersByGoals(ctx.Params("room"))
-	if err != nil {
-		return fiber.NewError(fiber.StatusConflict, "error getting stats")
-	}
-
-	return ctx.JSON(players)
-}
-
-func GetTop5PlayersByAssists(ctx *fiber.Ctx) error {
-	players, err := dao.GetTop5PlayersByAssists(ctx.Params("room"))
-	if err != nil {
-		return fiber.NewError(fiber.StatusConflict, "error getting stats")
-	}
-
-	return ctx.JSON(players)
 }
 
 func BanPlayer(ctx *fiber.Ctx) error {
@@ -109,15 +91,12 @@ func GetBanList(ctx *fiber.Ctx) error {
 }
 
 func ClearBan(ctx *fiber.Ctx) error {
-	var dto struct {
-		PlayerId uint   `json:"playerId"`
-		RoomId   string `json:"room"`
-	}
-	if err := ctx.BodyParser(&dto); err != nil {
-		return err
+	playerId, err := strconv.Atoi(ctx.Params("playerId"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusConflict, "invalid payload")
 	}
 
-	if err := dao.ClearBan(dto.PlayerId, dto.RoomId).Error; err != nil {
+	if err := dao.ClearBan(uint(playerId), ctx.Query("room")).Error; err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error clearing ban")
 	}
 
