@@ -8,9 +8,9 @@ import (
 func AdminRoutes(app fiber.Router) {
 	r := app.Group("/admin")
 
-	r.Post("/addConfig", services.AddRoomConfig)
-	r.Post("/updateConfig", services.UpdateConfig)
-	r.Post("/removeConfig", services.RemoveConfig) // TODO will be tested
-	r.Get("/getRoomConfig/:alias", services.GetRoomConfig)
-	r.Get("/getRoomConfigs", services.GetAllRoomConfigs)
+	config := r.Group("/configs")
+	config.Post("", services.AddRoomConfig)
+	config.Put("/:alias", services.UpdateConfig)
+	config.Delete("/:alias", services.RemoveConfig) // TODO will be tested
+	config.Get("/:alias?", services.GetRoomConfig)
 }

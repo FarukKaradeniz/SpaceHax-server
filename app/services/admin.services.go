@@ -23,7 +23,16 @@ func AddRoomConfig(ctx *fiber.Ctx) error {
 }
 
 func GetRoomConfig(ctx *fiber.Ctx) error {
-	config, err := dao.GetRoomConfig(ctx.Params("alias"))
+	alias := ctx.Params("alias")
+	var config interface{}
+	var err error
+
+	if alias != "" {
+		config, err = dao.GetRoomConfig(alias)
+	} else {
+		config, err = dao.GetAllRoomConfigs()
+	}
+
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error getting room config")
 	}
@@ -31,19 +40,14 @@ func GetRoomConfig(ctx *fiber.Ctx) error {
 	return ctx.JSON(config)
 }
 
-func GetAllRoomConfigs(ctx *fiber.Ctx) error {
-	configs, err := dao.GetAllRoomConfigs()
-	if err != nil {
-		return fiber.NewError(fiber.StatusConflict, "error creating room configs")
-	}
-
-	return ctx.JSON(configs)
-}
-
 func UpdateConfig(ctx *fiber.Ctx) error {
 	dto := new(models.RoomConfig)
 	if err := ctx.BodyParser(dto); err != nil {
 		return err
+	}
+
+	if dto.Alias != ctx.Params("alias") {
+		return fiber.NewError(fiber.StatusConflict, "invalid payload")
 	}
 
 	if err := dao.UpdateConfig(dto).Error; err != nil {
@@ -54,14 +58,8 @@ func UpdateConfig(ctx *fiber.Ctx) error {
 }
 
 func RemoveConfig(ctx *fiber.Ctx) error {
-	var dto struct {
-		Alias string `json:"alias"`
-	}
-	if err := ctx.BodyParser(&dto); err != nil {
-		return err
-	}
-
-	if err := dao.RemoveConfig(dto.Alias); err != nil {
+	alias := ctx.Params("alias")
+	if err := dao.RemoveConfig(alias); err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error removing room config")
 	}
 
