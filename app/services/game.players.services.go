@@ -3,13 +3,23 @@ package services
 import (
 	"errors"
 	"github.com/FarukKaradeniz/SpaceHax-server/app/dao"
-	"github.com/FarukKaradeniz/SpaceHax-server/app/models"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
+type LoginDTO struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+	RoomId   string `json:"room"`
+}
+
+type SignUpDTO struct {
+	LoginDTO
+	Connection string `json:"conn"`
+}
+
 func Login(ctx *fiber.Ctx) error {
-	dto := new(models.LoginDTO)
+	dto := new(LoginDTO)
 	if err := ctx.BodyParser(dto); err != nil {
 		return err
 	}
@@ -19,9 +29,11 @@ func Login(ctx *fiber.Ctx) error {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return fiber.NewError(fiber.StatusUnauthorized, "invalid name or password")
 	}
-
-	return ctx.JSON(models.AuthResponse{
-		Message:      "success",
+	return ctx.JSON(struct {
+		IsAdmin      *bool `json:"is_admin,omitempty"`
+		IsSuperAdmin *bool `json:"is_super_admin,omitempty"`
+		PlayerId     uint  `json:"player_id,omitempty"`
+	}{
 		IsAdmin:      &player.IsAdmin,
 		IsSuperAdmin: &player.IsSuperAdmin,
 		PlayerId:     player.ID,
@@ -29,7 +41,7 @@ func Login(ctx *fiber.Ctx) error {
 }
 
 func SignUp(ctx *fiber.Ctx) error {
-	dto := new(models.SignUpDTO)
+	dto := new(SignUpDTO)
 	if err := ctx.BodyParser(dto); err != nil {
 		return err
 	}
@@ -49,9 +61,7 @@ func SignUp(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusConflict, err.Error.Error())
 	}
 
-	return ctx.JSON(models.AuthResponse{
-		Message: "success",
-	})
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
 func ChangePassword(ctx *fiber.Ctx) error {
@@ -68,7 +78,5 @@ func ChangePassword(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusConflict, "error changing password")
 	}
 
-	return ctx.JSON(models.AuthResponse{
-		Message: "success",
-	})
+	return ctx.SendStatus(fiber.StatusOK)
 }
