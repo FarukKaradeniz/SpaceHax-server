@@ -56,7 +56,7 @@ func UpdateConfig(ctx *fiber.Ctx) error {
 
 func RemoveConfig(ctx *fiber.Ctx) error {
 	alias := ctx.Params("alias")
-	if err := dao.RemoveConfig(alias).Error; err != nil {
+	if err := dao.RemoveConfig(alias); err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error removing room config")
 	}
 

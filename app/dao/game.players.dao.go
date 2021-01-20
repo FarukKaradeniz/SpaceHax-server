@@ -42,12 +42,3 @@ func (player *Player) AfterSave(_ *gorm.DB) (err error) {
 	}
 	return nil
 }
-
-func (player *Player) BeforeDelete(_ *gorm.DB) (err error) {
-	err = ClearBans(player.RoomId).Error
-	if err != nil {
-		return err
-	}
-
-	return RemoveStats(player.RoomId).Error
-}

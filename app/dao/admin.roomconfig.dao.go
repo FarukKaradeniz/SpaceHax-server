@@ -44,10 +44,24 @@ func UpdateConfig(config *RoomConfig) *gorm.DB {
 	return database.DB.Where("alias = ?", config.Alias).Updates(config)
 }
 
-func RemoveConfig(alias string) *gorm.DB {
-	return database.DB.Where("alias = ?", alias).Delete(&RoomConfig{Alias: alias})
-}
+func RemoveConfig(alias string) error {
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		// Remove bans first
+		if err := tx.Where("room_id = ?", alias).Delete(&BannedPlayer{}).Error; err != nil {
+			return err
+		}
 
-func (config *RoomConfig) BeforeDelete(tx *gorm.DB) (err error) {
-	return RemovePlayers(config.Alias).Error
+		// Remove player stats
+		if err := tx.Where("room_id = ?", alias).Delete(&PlayerStats{}).Error; err != nil {
+			return err
+		}
+
+		// Remove players
+		if err := tx.Where("room_id = ?", alias).Delete(&Player{}).Error; err != nil {
+			return err
+		}
+
+		// finally remove config
+		return tx.Where("alias = ?", alias).Delete(&RoomConfig{}).Error
+	})
 }
