@@ -11,9 +11,9 @@ func BanPlayer(ctx *fiber.Ctx) error {
 	var dto struct {
 		PlayerId uint      `json:"playerId"`
 		Until    time.Time `json:"until"`
-		IsPerma  bool      `json:"is_perma"`
+		IsPerma  bool      `json:"isPerma"`
 		RoomId   string    `json:"room"`
-		BanType  string    `json:"ban_type"`
+		BanType  string    `json:"banType"`
 	}
 	if err := ctx.BodyParser(&dto); err != nil {
 		return err

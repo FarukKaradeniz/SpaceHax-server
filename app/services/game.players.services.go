@@ -30,9 +30,9 @@ func Login(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, "invalid name or password")
 	}
 	return ctx.JSON(struct {
-		IsAdmin      *bool `json:"is_admin,omitempty"`
-		IsSuperAdmin *bool `json:"is_super_admin,omitempty"`
-		PlayerId     uint  `json:"player_id,omitempty"`
+		IsAdmin      *bool `json:"isAdmin,omitempty"`
+		IsSuperAdmin *bool `json:"isSuperAdmin,omitempty"`
+		PlayerId     uint  `json:"playerId,omitempty"`
 	}{
 		IsAdmin:      &player.IsAdmin,
 		IsSuperAdmin: &player.IsSuperAdmin,
