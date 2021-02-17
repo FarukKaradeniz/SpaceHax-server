@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/FarukKaradeniz/SpaceHax-server/config/database"
 	"gorm.io/gorm"
+	"net/url"
+	"strings"
 	"time"
 )
 
@@ -21,6 +23,7 @@ type PlayerStats struct {
 	GamesPlayed       uint
 	GamesWon          uint
 	RoomId            string
+	PlayerName        string `gorm:"->"`
 }
 
 func (PlayerStats) TableName() string {
@@ -55,18 +58,28 @@ func ClearPlayerStats(playerId uint, roomId string) *gorm.DB {
 	return database.DB.Model(&PlayerStats{}).Where("player_id = ? and room_id = ?", playerId, roomId).Updates(updates)
 }
 
-func GetPlayerStatsByID(playerId uint, roomId string) (PlayerStats, error) {
+func GetPlayerStatsByID(playerName, roomId string) (PlayerStats, error) {
 	stats := PlayerStats{}
-	tx := database.DB.Where("player_id = ? and room_id = ?", playerId, roomId).First(&stats)
+	playerName, err := url.QueryUnescape(playerName)
+	if err != nil || strings.ReplaceAll(playerName, " ", "") == "" {
+		return stats, errors.New("problem decoding")
+	}
+	tx := database.DB.Model(&PlayerStats{}).Select("player_stats.id, player_stats.player_id, player_stats.total_goals_count,"+
+		"player_stats.total_assists_count, player_stats.total_games_won, player_stats.goals_count, player_stats.assists_count,"+
+		"player_stats.games_played, player_stats.games_won, player_stats.room_id, players.player_name").Joins("inner join players on "+
+		"player_stats.player_id = players.id").Where("players.player_name = ? and player_stats.room_id = ?", playerName, roomId).Scan(&stats)
+
 	if tx.Error != nil {
 		return stats, tx.Error
 	}
-	if stats.PlayerId == playerId {
-		return stats, nil
+	if stats.ID == 0 {
+		return stats, errors.New("stats not found")
 	}
-	return stats, errors.New("error getting stats")
+
+	return stats, nil
 }
 
+// TODO needs fixing and another route
 func GetPlayers(limit int, sortBy, roomId string) ([]PlayerStats, error) {
 	sort := map[string]string{
 		"goals":   "total_goals_count",

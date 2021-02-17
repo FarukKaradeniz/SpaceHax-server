@@ -48,16 +48,8 @@ func ClearPlayerStats(ctx *fiber.Ctx) error {
 }
 
 func GetStats(ctx *fiber.Ctx) error {
-	playerId, err := strconv.Atoi(ctx.Params("playerId"))
-	var playerStats interface{}
-	if playerId != 0 {
-		playerStats, err = dao.GetPlayerStatsByID(uint(playerId), ctx.Query("room"))
-	} else {
-		limit, _ := strconv.Atoi(ctx.Query("limit", "5"))
-		room := ctx.Query("room")
-		sortBy := ctx.Query("sortBy", "goals")
-		playerStats, err = dao.GetPlayers(limit, sortBy, room)
-	}
+	playerId := ctx.Params("playerName")
+	playerStats, err := dao.GetPlayerStatsByID(playerId, ctx.Query("room"))
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error getting stats")
