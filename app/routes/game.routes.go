@@ -12,6 +12,7 @@ func HaxGameRoutes(app fiber.Router) {
 	stats.Post("", services.SaveGame)
 	stats.Delete("/:playerId", services.ClearPlayerStats)
 	stats.Get("/:playerId?", services.GetStats)
+	// TODO topGoals, topAssists, topPoints
 
 	bans := r.Group("/bans")
 	bans.Post("", services.BanPlayer)

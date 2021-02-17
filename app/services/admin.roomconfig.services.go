@@ -11,7 +11,7 @@ func AddRoomConfig(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	err := dao.AddRoomConfig(dto.Alias, dto.RoomName, dto.Map, dto.ScoreLimit, dto.TimeLimit).Error
+	err := dao.AddRoomConfig(dto.Alias, dto.RoomName, dto.Map, dto.ScoreLimit, dto.TimeLimit, dto.MaxPlayer).Error
 	if err != nil {
 		return fiber.NewError(fiber.StatusConflict, "error creating room config")
 	}

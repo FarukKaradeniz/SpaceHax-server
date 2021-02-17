@@ -11,19 +11,23 @@ type RoomConfig struct {
 	ScoreLimit int8   `json:"scoreLimit"`
 	TimeLimit  int8   `json:"timeLimit"`
 	Alias      string `json:"alias"` // spacebouncebrakesv3, spacebouncev4 gibi
+	MaxPlayer  int8   `json:"maxPlayer"`
+	TopStreak  int    `json:"topStreak"`
 }
 
 func (RoomConfig) TableName() string {
 	return "room_config"
 }
 
-func AddRoomConfig(alias, name, mapType string, scoreLimit, timeLimit int8) *gorm.DB {
+func AddRoomConfig(alias, name, mapType string, scoreLimit, timeLimit, maxPlayer int8) *gorm.DB {
 	config := &RoomConfig{
 		Alias:      alias,
 		Map:        mapType,
 		RoomName:   name,
 		ScoreLimit: scoreLimit,
 		TimeLimit:  timeLimit,
+		MaxPlayer:  maxPlayer,
+		TopStreak:  0,
 	}
 	return database.DB.Create(config)
 }
