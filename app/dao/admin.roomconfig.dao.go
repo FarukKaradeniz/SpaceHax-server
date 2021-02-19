@@ -13,6 +13,7 @@ type RoomConfig struct {
 	Alias      string `json:"alias"` // spacebouncebrakesv3, spacebouncev4 gibi
 	MaxPlayer  int8   `json:"maxPlayer"`
 	TopStreak  int    `json:"topStreak"`
+	TopPlayers string `json:"topPlayers"`
 }
 
 func (RoomConfig) TableName() string {
