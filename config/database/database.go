@@ -14,7 +14,7 @@ func Connect() {
 	dbUri := fmt.Sprintf("host=%s user=%s password=%s dbname=%s",
 		config.DB_HOST, config.DB_USER, config.DB_PASS, config.DB_NAME)
 	db, err := gorm.Open(postgres.Open(dbUri), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logger.Error),
 	})
 	if err != nil {
 		fmt.Println("database connection error")
