@@ -1,26 +1,27 @@
 package config
 
 import (
-	"fmt"
+	"github.com/joho/godotenv"
+	"log"
 	"os"
 )
 
 var (
-	PORT    = getEnv("PORT", "8080")
-	DB_HOST = getEnv("DB_HOST", "localhost")
-	DB_USER = getEnv("DB_USER", "postgres")
-	DB_PASS = getEnv("DB_PASS", "admin")
-	DB_NAME = getEnv("DB_NAME", "spacehax")
+	PORT    = getEnv("PORT")
+	DB_HOST = getEnv("DB_HOST")
+	DB_USER = getEnv("DB_USER")
+	DB_PASS = getEnv("DB_PASS")
+	DB_NAME = getEnv("DB_NAME")
+	SECRET  = getEnv("SECRET")
 )
 
-func getEnv(name string, fallback string) string {
-	if value, exists := os.LookupEnv(name); exists {
-		return value
+func getEnv(key string) string {
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
 	}
 
-	if fallback != "" {
-		return fallback
-	}
-
-	panic(fmt.Sprintf(`Environment variable not found :: %v`, name))
+	return os.Getenv(key)
 }
