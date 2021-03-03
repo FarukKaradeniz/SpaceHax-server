@@ -13,7 +13,7 @@ func AdminRoutes(app fiber.Router) {
 
 	config := r.Group("/configs")
 	config.Post("", middleware.Protected([]string{"admin"}), services.AddRoomConfig)
-	config.Put("/:alias", middleware.Protected([]string{"admin"}), services.UpdateConfig)
+	config.Put("/:alias", middleware.Protected([]string{"admin", "room"}), services.UpdateConfig)
 	config.Delete("/:alias", middleware.Protected([]string{"admin"}), services.RemoveConfig)
 	config.Get("/:alias?", middleware.Protected([]string{"room", "admin"}), services.GetRoomConfig)
 }
