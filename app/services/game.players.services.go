@@ -47,7 +47,7 @@ func SignUp(ctx *fiber.Ctx) error {
 	}
 
 	player := &dao.Player{}
-	err := dao.GetPlayerByNameAndPassword(player, dto.Name, dto.Password, dto.RoomId).Error
+	err := dao.GetPlayerByName(player, dto.Name, dto.RoomId).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return fiber.NewError(fiber.StatusConflict, "you already have an account")
 	}
