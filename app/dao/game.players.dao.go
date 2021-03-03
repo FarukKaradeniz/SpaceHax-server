@@ -27,6 +27,10 @@ func GetPlayerByNameAndPassword(player *Player, name, password string, roomId st
 	return database.DB.Where("player_name = ? and password = ? and room_id = ?", name, password, roomId).First(player)
 }
 
+func GetPlayerByName(player *Player, name, roomId string) *gorm.DB {
+	return database.DB.Where("player_name = ? and room_id = ?", name, roomId).First(player)
+}
+
 func ChangePassword(playerId uint, newPassword string, roomId string) *gorm.DB {
 	return database.DB.Model(&Player{}).Where("id = ? and room_id = ?", playerId, roomId).Update("password", newPassword)
 }
